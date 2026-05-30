@@ -29,8 +29,9 @@
                     </svg>
                     <span class="text-sm font-semibold text-amber-900 truncate">{{ toName }}</span>
                 </div>
-                <div class="text-xs text-amber-500 mt-0.5 flex gap-2">
+                <div class="text-xs text-amber-500 mt-0.5 flex gap-2 items-center">
                     <span v-if="carType">{{ carType }}</span>
+                    <span v-if="runValue" class="text-green-700 font-mono font-semibold">${{ runValue.toLocaleString() }}</span>
                     <span v-if="waybill.sessionId">· {{ sessionLabel }}</span>
                 </div>
             </div>
@@ -62,7 +63,7 @@
 
 <script>
 import { useRailroadStore } from '@/stores/railroad'
-import { cargoByComodity } from '@/lib/cargo'
+import { cargoByComodity, runValue as calcRunValue } from '@/lib/cargo'
 
 export default {
     props: {
@@ -90,6 +91,9 @@ export default {
         },
         carType() {
             return cargoByComodity[this.waybill.commodity]?.carType ?? null
+        },
+        runValue() {
+            return calcRunValue(this.waybill.commodity, this.waybill.quantity)
         },
     },
 }

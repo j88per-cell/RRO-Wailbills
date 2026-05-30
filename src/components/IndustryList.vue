@@ -102,7 +102,6 @@ const CATEGORIES = [
     { label: 'Oil',         commodities: ['Crude Oil', 'Oil Barrel', 'Steel Pipes'] },
     { label: 'Gold',        commodities: ['Gold Ore', 'Refined Gold', 'Gold Ingot'] },
     { label: 'Agriculture', commodities: ['Grain', 'Straw Bale', 'Cattle', 'Meat', 'Seed Pallet', 'Water'] },
-    { label: 'Sand',        commodities: ['Sand'] },
 ]
 
 export default {

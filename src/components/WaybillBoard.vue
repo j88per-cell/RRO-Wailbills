@@ -1,9 +1,21 @@
 <template>
+    <WaybillPublish
+        v-if="showPublish"
+        :waybills="activeWaybills"
+        @close="showPublish = false"
+    />
     <div class="waybill-board">
         <!-- Toolbar -->
         <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
             <h2 class="font-display text-xl text-amber-900">Waybills</h2>
             <div class="flex gap-2 flex-wrap">
+                <button
+                    v-if="activeWaybills.length > 0"
+                    class="text-sm bg-stone-700 hover:bg-stone-800 text-amber-100 px-3 py-1 rounded transition-colors"
+                    @click="showPublish = true"
+                >
+                    Publish Run
+                </button>
                 <button
                     class="text-sm bg-amber-700 hover:bg-amber-800 text-white px-3 py-1 rounded transition-colors"
                     @click="showAutoConfig = !showAutoConfig"
@@ -190,6 +202,7 @@
 import { useWaybillStore } from '@/stores/waybills'
 import { useRailroadStore } from '@/stores/railroad'
 import WaybillCard from '@/components/waybills/WaybillCard.vue'
+import WaybillPublish from '@/components/WaybillPublish.vue'
 
 const STORAGE_KEY = 'rro-autogen-config'
 
@@ -212,7 +225,7 @@ const DEFAULT_CONFIG = {
 }
 
 export default {
-    components: { WaybillCard },
+    components: { WaybillCard, WaybillPublish },
 
     props: {
         incomingWaybill: { type: Object, default: null },
@@ -230,6 +243,7 @@ export default {
         const saved = localStorage.getItem(STORAGE_KEY)
         return {
             showAutoConfig: false,
+            showPublish: false,
             autoConfig: saved ? { ...DEFAULT_CONFIG, ...JSON.parse(saved) } : { ...DEFAULT_CONFIG },
             pendingWaybill: null,
             pendingDestIdx: null,

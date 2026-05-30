@@ -26,5 +26,4 @@ coverage
 *.njsproj
 *.sln
 *.sw?
-Railroads-Online-main/
-railroad.studio-mainline/
+resources/

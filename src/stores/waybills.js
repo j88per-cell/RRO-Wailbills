@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useRailroadStore } from './railroad'
-import { carsNeeded } from '@/lib/cargo'
+import { carsNeeded, runValue } from '@/lib/cargo'
 
 export const useWaybillStore = defineStore('waybills', {
     state: () => ({
@@ -64,53 +64,67 @@ export const useWaybillStore = defineStore('waybills', {
             this.nextId = 1
         },
 
-        // Auto-generate waybills: find output→input commodity matches where source has stock
-        autoGenerate() {
+        autoGenerate(options = {}) {
+            const {
+                maxWaybills = 0,        // 0 = unlimited
+                maxCars = 0,            // 0 = unlimited
+                minStock = 1,
+                sortByValue = true,
+                allowedCommodities = null,  // null = all; array of commodity names to restrict
+            } = options
+
             const railroadStore = useRailroadStore()
             const industries = railroadStore.industries
 
-            // Build a map: commodity name → list of industries that need it as input
             const needsMap = {}
             for (const industry of industries) {
                 for (let i = 0; i < industry.inputs.length; i++) {
                     const slot = industry.inputs[i]
-                    const commodity = slot.label
-                    if (!needsMap[commodity]) needsMap[commodity] = []
-                    needsMap[commodity].push({ industry, slot: i })
+                    if (!needsMap[slot.label]) needsMap[slot.label] = []
+                    needsMap[slot.label].push({ industry, slot: i })
                 }
             }
 
             const sessionId = `auto-${Date.now()}`
-            let generated = 0
+            const pending = []
 
             for (const industry of industries) {
                 for (let i = 0; i < industry.outputs.length; i++) {
                     const slot = industry.outputs[i]
-                    if (slot.amount === 0) continue
+                    if (slot.amount < minStock) continue
                     const commodity = slot.label
+                    if (allowedCommodities && !allowedCommodities.includes(commodity)) continue
 
                     const destinations = needsMap[commodity] || []
                     for (const dest of destinations) {
                         if (dest.industry.idx === industry.idx) continue
-                        this.addWaybill({
+                        let quantity = carsNeeded(commodity, slot.amount) ?? slot.amount
+                        if (maxCars > 0) quantity = Math.min(quantity, maxCars)
+                        pending.push({
                             fromIndustryIdx: industry.idx,
                             toIndustryIdx: dest.industry.idx,
                             commodity,
                             fromSlot: i,
                             toSlot: dest.slot,
-                            quantity: carsNeeded(commodity, slot.amount) ?? slot.amount,
+                            quantity,
                             sessionId,
                         })
-                        generated++
                     }
                 }
             }
 
-            if (generated > 0) {
+            if (sortByValue) {
+                pending.sort((a, b) => (runValue(b.commodity, b.quantity) ?? 0) - (runValue(a.commodity, a.quantity) ?? 0))
+            }
+
+            const toAdd = maxWaybills > 0 ? pending.slice(0, maxWaybills) : pending
+            for (const w of toAdd) this.addWaybill(w)
+
+            if (toAdd.length > 0) {
                 this.sessions.push({ id: sessionId, name: `Auto Run ${new Date().toLocaleTimeString()}`, createdAt: Date.now() })
             }
 
-            return generated
+            return toAdd.length
         },
     },
 })

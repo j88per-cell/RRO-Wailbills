@@ -37,3 +37,9 @@ npm install
 npm run dev     # dev server with hot reload
 npm run build   # production build
 ```
+
+## License
+
+MIT — do whatever you want with it. See [LICENSE](LICENSE).
+
+Save file parsing uses the [railroad.studio](https://railroad.studio/) GVAS parser, also MIT licensed.

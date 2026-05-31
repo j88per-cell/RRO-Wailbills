@@ -9,7 +9,8 @@
     "watch": "vite build --watch --mode development"
   },
   "dependencies": {
-    "pinia": "^2.0.32",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },

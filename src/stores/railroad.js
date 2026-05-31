@@ -51,6 +51,10 @@ function extractRoadNames(frames) {
 }
 
 export const useRailroadStore = defineStore('railroad', {
+    persist: {
+        pick: ['railroad', 'fileName', 'railroadName', 'roadNameCandidates'],
+    },
+
     state: () => ({
         railroad: null,
         loading: false,

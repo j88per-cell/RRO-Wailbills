@@ -3,6 +3,8 @@ import { useRailroadStore } from './railroad'
 import { carsNeeded, runValue } from '@/lib/cargo'
 
 export const useWaybillStore = defineStore('waybills', {
+    persist: true,
+
     state: () => ({
         waybills: [],
         sessions: [],
